@@ -4,10 +4,15 @@
 #include <TimeLib.h>
 #include "iot.h"
 #include "senhas.h"
+#include "SaidasControleDeAcesso.h"
+#include "SaidasIrrigacao.h"
+#include "SaidasTelhado.h"
 #include "Saidas.h"
 #include "Atuadores.h"
-#include "Entradas.h"
+#include "EntradasControleDeAcesso.h"
 #include "funcoes.h"
+#include "EntradasIrrigacao.h"
+#include "EntradasTelhado.h"
 #include <U8g2lib.h>
 #include <ArduinoJson.h>
 
@@ -19,6 +24,12 @@
 bool porta;
 
 String usuario_autorizado = "()*&#$$@!@#$%^()";
+
+bool bombaIrrigacao;
+
+bool bomba2;
+
+bool bomba3;
 
 
 // Definição dos tópicos de inscrição
@@ -58,6 +69,9 @@ void setup_wifi()
     delay(500);
     Serial.print(".");
   }
+  Serial.println();
+  Serial.println("Conectado ao WiFi com sucesso com IP: ");
+  Serial.println(WiFi.localIP());
   espClient.setCACert(AWS_CERT_CA);
   espClient.setCertificate(AWS_CERT_CRT);
   espClient.setPrivateKey(AWS_CERT_PRIVATE);
@@ -70,7 +84,6 @@ void setup_wifi()
 void atualiza_mqtt()
 {
   client.loop();
-  SensorDeChuva();
   if (!client.connected())
   {
     reconecta_mqtt();
@@ -135,7 +148,7 @@ void tratar_msg(char *topic, String msg)
     deserializeJson(doc, msg);
     if (doc.containsKey("Telhado"))
     {
-      Telhado == doc["Telhado"];
+      Telhado = doc["Telhado"];
       if (Telhado)
       {
         Acionar_Telhado = true;
@@ -147,7 +160,7 @@ void tratar_msg(char *topic, String msg)
     }
     if (doc.containsKey("Porta"))
     {
-      porta == doc["Porta"];
+      porta = doc["Porta"];
       if (porta)
       {
         Acionar_teclado = true;
@@ -158,40 +171,24 @@ void tratar_msg(char *topic, String msg)
       }
     if (doc.containsKey("Bomba1"))
     {
-      bomba1 == doc["Bomba1"];
-      if (bomba1)
+      automaticoUmidade = false;
+      bombaIrrigacao = doc["Bomba1"];
+      if (bombaIrrigacao)
       {
-        EstadoBomba1 = !EstadoBomba1;
-        
+        EstadoBombaIrrigacao = true;
       }
-      else 
+      else
       {
-        EstadoBomba1 = !EstadoBomba1;
+        EstadoBombaIrrigacao = false;
       }
     }
     if (doc.containsKey("Bomba2"))
     {
-     bomba2 == doc["Bomba2"];
-     if (bomba2)
-      {
-        EstadoBomba2 = !EstadoBomba2;
-        
-      }
-      else 
-      {
-        EstadoBomba2 = !EstadoBomba2;
-    }
+     EstadoBombaCaixaDeAgua = doc["Bomba2"];
     if (doc.containsKey("Bomba3"))
     {
-      bomba3 == doc["Bomba3"];
-      if (bomba3)
-      {
-        EstadoBomba3 = !EstadoBomba3;
-      }
-      else 
-      {
-        EstadoBomba3 = !EstadoBomba3;
-      }
+      EstadoBombaCisterna = doc["Bomba3"];
+
     }
   }
 }
@@ -216,7 +213,7 @@ void tratar_msg(char *topic, String msg)
             tempo_extra();
           if (doc.containsKey("Telhado"))
     {
-      Telhado == doc["Telhado"];
+      Telhado = doc["Telhado"];
       if (Telhado)
       {
         Acionar_Telhado = true;
@@ -228,7 +225,7 @@ void tratar_msg(char *topic, String msg)
     }
     if (doc.containsKey("Porta"))
     {
-      porta == doc["Porta"];
+      porta = doc["Porta"];
       if (porta)
       {
         Acionar_teclado = true;
@@ -239,39 +236,39 @@ void tratar_msg(char *topic, String msg)
       }
     if (doc.containsKey("Bomba1"))
     {
-      bomba1 == doc["Bomba1"];
-      if (bomba1)
+      bombaIrrigacao = doc["Bomba1"];
+      if (bombaIrrigacao)
       {
-        EstadoBomba1 = !EstadoBomba1;
+        EstadoBombaIrrigacao = !EstadoBombaIrrigacao;
         
       }
       else 
       {
-        EstadoBomba1 = !EstadoBomba1;
+        EstadoBombaIrrigacao = !EstadoBombaIrrigacao;
       }
     }
     if (doc.containsKey("Bomba2"))
     {
-     bomba2 == doc["Bomba2"];
+     bomba2 = doc["Bomba2"];
      if (bomba2)
       {
-        EstadoBomba2 = !EstadoBomba2;
+        EstadoBombaCaixaDeAgua = !EstadoBombaCaixaDeAgua;
         
       }
       else 
       {
-        EstadoBomba2 = !EstadoBomba2;
+        EstadoBombaCaixaDeAgua = !EstadoBombaCaixaDeAgua;
     }
     if (doc.containsKey("Bomba3"))
     {
-      bomba3 == doc["Bomba3"];
+      bomba3 = doc["Bomba3"];
       if (bomba3)
       {
-        EstadoBomba3 = !EstadoBomba3;
+        EstadoBombaCisterna = !EstadoBombaCisterna;
       }
       else 
       {
-        EstadoBomba3 = !EstadoBomba3;
+        EstadoBombaCisterna = !EstadoBombaCisterna;
       }
     }
   }

@@ -1,10 +1,20 @@
 #include <Arduino.h>
 #include "iot.h"
 #include "saidas.h"
-#include "entradas.h"
+#include "EntradasControleDeAcesso.h"
 #include "tempo.h"
 #include "Saidas.h"
 #include "funcoes.h"
+#include "EntradasIrrigacao.h"
+#include "EntradasTelhado.h"
+
+#include "SaidasControleDeAcesso.h"
+
+#include "SaidasIrrigacao.h"
+
+#include "SaidasTelhado.h"
+
+#include "Saidas.h"
 
 #include "Atuadores.h"
 #include <ArduinoJson.h>
@@ -59,13 +69,13 @@ void setup()
   Serial.begin(115200);
   setup_wifi();
   setup_time();
-  inicializa_entradas();
+  inicia_entradasIrrigacao();
   inicializa_saidas();
   inicializa_servo();
   inicializa_random();
   server.on("/ligar_led", []()
             {
-    EstadoLed = !EstadoLed;
+    EstadoLed = true;
     if (millis() - tempoAnterior2 >= espera2) {
       tempoAnterior2 = millis();
       sendMessage("Led ligado");
@@ -73,7 +83,7 @@ void setup()
     server.send(200, "text/plain","Ligar LED"); });
   server.on("/desligar_led", []()
             {
-    EstadoLed = !EstadoLed;
+    EstadoLed = false;
     if (millis() - tempoAnterior3 >= espera2) {
       tempoAnterior3 = millis();
       sendMessage("Led desligado");
@@ -117,7 +127,7 @@ void loop()
   atualiza_mqtt();
   SensorDeChuva();
   display();
-  temperatura();
+  atualiza_entradasIrrigacao();
   teclado();
   funcao_telhado();
   funcao_teclado();
@@ -129,7 +139,7 @@ void loop()
 
   String Json;
   JsonDocument doc;
-  String temperaturaDuasCasas = String(Temperatura, 2);
+  
   if (millis() - tempoAnterior >= espera)
   {
     tempoAnterior = millis();
@@ -139,12 +149,13 @@ void loop()
     doc["Telhado"] = Telhado;
     doc["Temperatura"] = temperaturaDuasCasas;
     doc["Porta"] = porta;
-    doc["Bomba1"] = bomba1;
-    doc["Bomba2"] = bomba2;
-    doc["Bomba3"] = bomba3;
+    doc["Bomba1"] = EstadoBombaIrrigacao;
+    doc["Bomba2"] = EstadoBombaCaixaDeAgua;
+    doc["Bomba3"] = EstadoBombaCisterna;
     doc["Capacidade_da_caixa_dagua"] = volume_ml;
+    doc["EstadoSolo"] = estadoDoSolo;
     serializeJson(doc, Json);
-    publica_mqtt(mqtt_publish_topic1, Json);
+    publica_mqtt(mqtt_publish_topic2, Json);
   }
 }
 
