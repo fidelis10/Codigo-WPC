@@ -1,17 +1,20 @@
 #include <Arduino.h>
 #include "SaidasTelhado.h"
 #include "EntradasTelhado.h"
+#include "FitaLed.h"
 
 #define pinSensorDeChuva 35
 
 bool Telhado;
 
-float SensordeChuva = 0;
+int SensordeChuva = 0;
 
 bool estadoAnterior = false;
 bool estadoAtual;
 
 bool Chuva;
+
+bool TelhadoAutomatico;
 
 void inicializa_entradas_Telhado()
 {
@@ -25,32 +28,35 @@ void atualiza_entradas_Telhado()
 
 void SensorDeChuva()
 {
+  if (TelhadoAutomatico)
+  {
   // Atualiza o estado atual com base na leitura do sensor
   if (SensordeChuva > 2000)
   {
-    estadoAtual = false;
+    Chuva = false;
+    Telhado = false;
+    Acionar_Telhado = false;
+    // ativarFitaLed = false;
   }
   else
   {
-    estadoAtual = true;
+     Chuva = true;
+     Telhado = true;
+     Acionar_Telhado = true;
+    //  ativarFitaLed = true;
   }
-  //
-  if (estadoAnterior != estadoAtual)
+  }
+  else {
+    if (SensordeChuva > 2000)
   {
-    if (estadoAtual == false)
-    {
-      Acionar_Telhado = false;
-      Chuva = false;
-      Telhado = false;
-    }
-    else
-    {
-      Acionar_Telhado = true;
-      Chuva = true;
-      Telhado = true;
-    }
-
-    // Atualiza o estadoAnterior para o próximo ciclo
-    estadoAnterior = estadoAtual;
+    Chuva = false;
+    Telhado = false;
+  }
+  else
+  {
+     Chuva = true;
+     Telhado = true;
+  }
   }
 }
+

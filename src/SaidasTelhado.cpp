@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "Atuadores.h"
+#include "Preferencias.h"
 
 bool Acionar_Telhado = false;
 
@@ -24,4 +25,5 @@ void funcao_telhado()
     // }
   }
   posiciona_servo(angulo);
+
 }

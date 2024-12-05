@@ -7,3 +7,7 @@ void atualiza_entradas_Telhado();
 extern bool Chuva;
 
 extern bool Telhado;
+
+extern int SensordeChuva;
+
+extern bool TelhadoAutomatico;

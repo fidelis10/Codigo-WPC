@@ -1,6 +1,5 @@
-const char* ssid = "MQTT";
+const char* ssid = "SALA 10";
 const char* password = "info@134";
-
 const char *AWS_IOT_ENDPOINT = "amov3yqkadyv5-ats.iot.us-east-1.amazonaws.com"; 
 const int mqtt_port = 8883;
 

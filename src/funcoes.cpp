@@ -1,41 +1,38 @@
 #include <Arduino.h>
 #include "funcoes.h"
 #include "tempo.h"
+#include "DisplayLCD.h"
+#include "iot.h"
 
-int numero_randomico;
+int senha;
+const unsigned long intervaloNormal = 30000;
+const unsigned long intervaloEstendido = 90000;
+unsigned long tempoInicialResetSenha = 0;
+unsigned long intervaloResetSenha = 0;
 
-const unsigned long intervalo_normal = 30000;
-const unsigned long intervalo_extra = 90000;
-
-unsigned long tempo_anterior_token = 0;
-unsigned long intervalo_token = 0;
-
-void inicializa_random()
+int randomiza_senha()
 {
-  randomSeed(timeStamp());
-}
+  unsigned long tempoAtual = millis();
 
-int gera_senha()
-{
-  reseta_usuario();
-  unsigned long tempo_atual = millis();
-  if (tempo_atual - tempo_anterior_token >= intervalo_token)
+  if (tempoAtual - tempoInicialResetSenha >= intervaloResetSenha)
   {
-    if (tempo_anterior_token != intervalo_normal)
-      intervalo_token = intervalo_normal; // so pra nao comecar com o numero 0 :)
-    tempo_anterior_token = tempo_atual;
-    numero_randomico = random(1000, 9999);
-    Serial.printf("Nova senha: %d\n", numero_randomico);
+    resetaUsuario();
+    if (intervaloResetSenha != intervaloNormal)
+      intervaloResetSenha = intervaloNormal;
+    tempoInicialResetSenha = tempoAtual;
+    senha = random(1000, 9999);
+    Serial.printf("Nova Senha: %d\n", senha);
   }
-  return numero_randomico;
+  return senha;
 }
 
-void tempo_extra()
+void tempoSenhaEstendido()
 {
-  if (intervalo_token != intervalo_extra)
+  if (intervaloResetSenha != intervaloEstendido)
   {
-  tempo_anterior_token = millis();
-  intervalo_token = intervalo_extra;
-  Serial.println("Senha estendida por 90s");
+    unsigned long tempoAtual = millis();
+    tempoInicialResetSenha = tempoAtual;
+    intervaloResetSenha = intervaloEstendido;
+    Serial.println("Senha estendida por 90 segundos");
   }
 }

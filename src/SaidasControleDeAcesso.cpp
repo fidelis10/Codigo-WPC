@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include "Atuadores.h"
+#include "Preferencias.h"
 
-bool Acionar_teclado = false;
+bool Acionar_teclado;
 
 bool EstadoBombaCaixaDeAgua = false;
 
@@ -20,7 +21,7 @@ void funcao_teclado()
 {
     if (Acionar_teclado == false)
     {
-        angulo_servo2 = 90;
+        angulo_servo2 = 180;
         // if (millis() - tempoAnterior6 >= espera3)
         // {
         //   tempoAnterior6 = millis();
@@ -29,7 +30,7 @@ void funcao_teclado()
     }
     else if (Acionar_teclado == true)
     {
-        angulo_servo2 = 180;
+        angulo_servo2 = 90;
 
         // if (millis() - tempoAnterior7 >= espera3)
         // {

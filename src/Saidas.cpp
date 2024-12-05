@@ -4,7 +4,6 @@
 #include "Saidas.h"
 #include "Atuadores.h"
 #include "EntradasIrrigacao.h"
-
 #include "EntradasTelhado.h"
 
 unsigned long tempo_anterior = 0;
@@ -12,21 +11,20 @@ const unsigned long intervalo = 5000;
 
 #define pinLed 2
 
-
-#define pinBombaCisterna 5
+#define pinBombaCisterna 19
 
 bool EstadoLed = false;
 
 bool EstadoBombaCisterna = false;
 
-U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R2, U8X8_PIN_NONE);
 
 void inicializa_saidas()
 {
-
   pinMode(pinLed, OUTPUT);
-  pinMode(pinBombaCisterna, OUTPUT);
-  u8g2.begin();
+  // pinMode(pinBombaCisterna, OUTPUT);
+  u8g2.begin(); 
+  u8g2.setDisplayRotation(U8G2_R2);
 }
 
 void display()
@@ -41,15 +39,20 @@ void display()
     u8g2.drawStr(10, 23, "Umi.Solo:");
     u8g2.drawStr(80, 23, String(porcentagem).c_str()); // escreve a umidade do solo
     u8g2.drawStr(100, 23, "%");
-    u8g2.drawStr(10, 52, "Temp:");
-    u8g2.drawStr(60, 52, String(temperaturaDuasCasas).c_str()); // escreve a temperatura do ambiente
-    u8g2.drawStr(80, 52, "*C");
+    u8g2.drawStr(10, 38, "Temp:");
+    u8g2.drawStr(60, 38, String(temperaturaDuasCasas).c_str()); // escreve a temperatura do ambiente
+    u8g2.drawStr(100, 38, "*C");
+    u8g2.drawStr(10, 53, "Dist:");
+    u8g2.drawStr(70, 53, String(distancia_cm).c_str());
     u8g2.sendBuffer();
   }
 }
 
+
 void atualiza_bombas()
 {
- 
-  digitalWrite(pinBombaCisterna, EstadoBombaCisterna);
+  // digitalWrite(pinBombaCisterna, EstadoBombaCisterna);
 }
+
+
+

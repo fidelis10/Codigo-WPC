@@ -10,13 +10,15 @@ DHTesp dht;
 
 int SensorUmidade = 0;
 
-bool automaticoUmidade;
+bool automaticoUmidade = false;
 
 int porcentagem = 0;
 
 int estadoSolo;
 
 float Temperatura = 0;
+
+bool tratamento_bomba_irrigacao;
 
 String temperaturaDuasCasas;
 
@@ -33,37 +35,41 @@ void atualiza_entradasIrrigacao()
     Temperatura = dht.getTemperature();
     temperaturaDuasCasas = String(Temperatura, 2);
     SensorUmidade = analogRead(pinSensorUmidade);
-    porcentagem = map(SensorUmidade, 0, 4095, 100, 0);
+    porcentagem = map(SensorUmidade, 1700, 4095, 100, 0);
+    
  
  }
 void verificar_automatico()
 {
    if (automaticoUmidade)
   {
-  if (porcentagem <= 20) {
+  if (porcentagem < 10) {
     EstadoBombaIrrigacao = true;
+    tratamento_bomba_irrigacao = true;
     estadoSolo = 1;
    }
- else if (porcentagem > 20 && porcentagem <= 50)
+ else if (porcentagem >= 10 && porcentagem <= 50)
   {
     EstadoBombaIrrigacao = true;
+    tratamento_bomba_irrigacao = true;
     estadoSolo = 2;
   }
    else if (porcentagem > 50) {
     EstadoBombaIrrigacao = false;
+    tratamento_bomba_irrigacao = false;
     estadoSolo = 3;
       }
   }
   else
   {
-    if (porcentagem <= 20) {
+    if (porcentagem <= 10) {
     estadoSolo = 1;
    }
- else if (porcentagem > 20 && porcentagem <= 50)
+ else if (porcentagem > 10 && porcentagem <= 50)
   {
     estadoSolo = 2;
   }
-   else if (porcentagem > 50) {
+   else if (porcentagem > 60) {
     estadoSolo = 3;
       }
   }

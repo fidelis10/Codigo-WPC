@@ -14,9 +14,14 @@ void funcao_telhado();
 @param topico Tópico mqtt a ser publicado
 @param msg Mensagem a ser publicada
 */
-void publica_mqtt(String topico, String msg);
+bool publica_mqtt(String topico, char * msg);
 // Atualiza a conexão MQTT
 void atualiza_mqtt();
 
+void resetaUsuario();
+
 extern bool porta;
 
+extern String user;
+
+extern String usuarioAutorizado;

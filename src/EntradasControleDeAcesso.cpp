@@ -18,21 +18,26 @@
 
 int posicao = 0;
 
+bool automatico_laser = false;
 
+bool tratamento_bomba_caixa_dagua;
 
 
 
 
 // Dimensões da garrafa cilíndrica
 const float raio_cm = 5.0;        // Raio da base da garrafa em cm
-const float altura_max_cm = 18.0; // Altura total da garrafa em cm
+const float altura_max_cm = 20.0; // Altura total da garrafa em cm
 
 float volume_ml = 0;
+
+ float volume_cm3;
+
+ int distancia_cm;
 
 // Criar o objeto VL53L0X
 Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 
-VL53L0X_RangingMeasurementData_t measure;
 
 // Variáveis para controle de tempo
 unsigned long intervaloLeitura = 1000; // Intervalo de 1 segundo
@@ -58,18 +63,22 @@ byte rowPins[rowsCount] = {33, 25, 26, 14}; // pino4, pino5, pino6, pino7
 // Criacao de objetos
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, columnPins, rowsCount, columsCount);
 
-const char password[] = "40028922";
+const char password[] = "77432412";
 /* Quantidade de caracteres que a senha possui */
 const int caracteres = 8;
 
-void sendMessage(String message);
+
 
 // Inicializa as entradas
 
 
 void atualiza_entradas()
 {
-  Wire.begin();
+  if (!lox.begin()) {
+    Serial.println(F("Erro ao inicializar o VL53L0X. Verifique as conexões."));
+    while (1);
+  }
+  Serial.println(F("Sensor VL53L0X iniciado com sucesso."));
 }
 
 
@@ -110,26 +119,25 @@ void laser()
   unsigned long tempoAtual = millis();
 
   // Verificar se já se passou 1 segundo desde a última leitura
-  if (tempoAtual - tempoAnteriorLaser >= intervaloLeitura)
-  {
+  if (tempoAtual - tempoAnteriorLaser >= intervaloLeitura) {
     // Atualizar o tempo da última leitura
     tempoAnteriorLaser = tempoAtual;
+
+    VL53L0X_RangingMeasurementData_t measure;
 
     // Fazer uma leitura de distância
     lox.rangingTest(&measure, false);
 
     // Verificar se a medição é válida
-    if (measure.RangeStatus != 4)
-    { // Se não houver erro de medição
+    if (measure.RangeStatus != 4) {  // Se não houver erro de medição
       // Converter a distância de mm para cm
-      float distancia_cm = measure.RangeMilliMeter / 10.0;
+      distancia_cm = measure.RangeMilliMeter / 10.0;
 
       // Calcular a altura da água na garrafa
-      float altura_agua_cm = distancia_cm;
+      float altura_agua_cm = altura_max_cm - distancia_cm;
 
       // Se a altura da água for válida
-      if (altura_agua_cm > 0 && altura_agua_cm <= altura_max_cm)
-      {
+      if (altura_agua_cm > 0 && altura_agua_cm <= altura_max_cm) {
         // Calcular o volume da água na garrafa cilíndrica
         float volume_cm3 = 3.1416 * raio_cm * raio_cm * altura_agua_cm;
 
@@ -140,21 +148,27 @@ void laser()
         Serial.print("Distância medida: ");
         Serial.print(distancia_cm);
         Serial.println(" cm");
-
-        Serial.print("Volume de água: ");
-        Serial.print(volume_ml);
-        Serial.println(" ml");
-      }
-      else
-      {
+      } else {
         Serial.println("Altura da água fora do intervalo válido.");
       }
-    }
-    else
-    {
+    } else {
       Serial.println("Falha na medição de distância.");
     }
   }
-}
+  }
 
+void verifica_CaixaDeAgua()
+{
+  if (automatico_laser)
+        {
+          if (volume_ml < 900)
+          {
+            EstadoBombaCaixaDeAgua = true;
+          }
+          else if (volume_ml >= 900)
+          {
+            EstadoBombaCaixaDeAgua = false;
+          }
+}
+}
 

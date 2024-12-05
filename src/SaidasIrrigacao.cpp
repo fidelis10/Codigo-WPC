@@ -2,7 +2,7 @@
 #include "EntradasIrrigacao.h"
 
 
-#define pinBombaIrrigacao 19
+#define pinBombaIrrigacao 5
 
 bool EstadoBombaIrrigacao = false; 
 
